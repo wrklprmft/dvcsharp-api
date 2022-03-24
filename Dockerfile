@@ -11,7 +11,8 @@ ENV PATH="${PATH}:/root/.dotnet/tools"
 
 RUN dotnet restore \
     && dotnet tool install --global dotnet-ef \
-    && dotnet-ef database update
+    && dotnet-ef database update \
+    && dotnet dev-certs https
 
 EXPOSE 5000
 
