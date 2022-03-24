@@ -68,9 +68,8 @@ namespace dvcsharp_core_api
             return Ok("Cannot search without a keyword");
          }
 
-         var query = $"SELECT * From Products WHERE name LIKE '%{keyword}%' OR description LIKE '%{keyword}%'";
          var products = _context.Products
-            .FromSql(query)
+            .FromSqlInterpolated($"SELECT * From Products WHERE name LIKE '%{keyword}%' OR description LIKE '%{keyword}%'")
             .ToList();
 
          return Ok(products);

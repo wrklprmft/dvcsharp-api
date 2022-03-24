@@ -17,7 +17,8 @@ Install dependencies and migrate database:
 
 ```
 dotnet restore
-dotnet ef database update
+dotnet tool install --global dotnet-ef
+dotnet-ef database update
 ```
 
 Start application server:

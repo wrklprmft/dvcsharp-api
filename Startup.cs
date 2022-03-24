@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -33,11 +34,19 @@ namespace dvcsharp_core_api
 
             services.AddCors(options =>
             {
+                options.AddPolicy("signalr",
+                    builder => builder
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+
+                    .AllowCredentials()
+                    .SetIsOriginAllowed(hostName => true));
+
                 options.AddPolicy("CorsPolicy",
                     builder => builder.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .AllowCredentials()
+                    
                 .Build());
             });
 
@@ -53,10 +62,10 @@ namespace dvcsharp_core_api
                     };
                 });
 
-            services.AddMvc();
+            services.AddControllers();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -65,7 +74,11 @@ namespace dvcsharp_core_api
 
             app.UseCors("CorsPolicy");
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseRouting();  
+            app.UseEndpoints(endpoints => {  
+                endpoints.MapDefaultControllerRoute();  
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");  
+            });  
             
             app.Run(async(context) => {
                 await context.Response.WriteAsync("DVCSharp API: Route not found!");
