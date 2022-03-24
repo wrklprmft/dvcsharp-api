@@ -10,8 +10,8 @@ docker-compose up
 
 ### Manual
 
-Install .NET Core 2.x SDK
-[Microsoft .NET Core SDK](https://www.microsoft.com/net/download/macos)
+Install .NET Core 3.x SDK
+[Microsoft .NET Core SDK](https://dotnet.microsoft.com/en-us/download/dotnet/3.1)
 
 Install dependencies and migrate database:
 
