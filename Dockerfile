@@ -7,6 +7,8 @@ COPY . /app
 
 WORKDIR /app
 
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
 RUN dotnet restore \
     && dotnet tool install --global dotnet-ef \
     && dotnet-ef database update
