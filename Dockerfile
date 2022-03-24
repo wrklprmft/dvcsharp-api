@@ -8,7 +8,7 @@ COPY . /app
 WORKDIR /app
 
 RUN dotnet restore \
-    && dotnet tool install --global dotnet-ef
+    && dotnet tool install --global dotnet-ef \
     && dotnet-ef database update
 
 EXPOSE 5000
