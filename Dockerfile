@@ -16,4 +16,4 @@ RUN dotnet restore \
 
 EXPOSE 5000
 
-CMD ["dotnet", "watch", "run --no-launch-profile"]
+CMD ["dotnet", "watch", "run"]
