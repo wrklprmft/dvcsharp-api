@@ -1,10 +1,17 @@
-version: '2'
+version: '2.05'
 services:
   app:
     build: .
     command: ["bash", "-c", "./start.sh"]
     volumes:
       - .:/app
+      - /home/jurgen/Downloads/cxiast-cSharp-agent:/cx-agent
     ports:
       - "5000:5000"
-
+    environment:
+      - CORECLR_ENABLE_PROFILING=1
+      - CORECLR_PROFILER="{FBCC3F30-6581-4C64-B7C7-03B777F29D27}"
+      - CORECLR_PROFILER_PATH_64="/cx-agent/CxHome/engine_bin/DotNetProfilerEngine_x64d.so"
+      - Cx_IAST_CORE_PROCESS_TO_MONITOR=*
+      - Cx_IAST_NET_CORE_DEBUG=0
+      - Cx_IAST_NET_CORE_HOME="/cx-agent/CxHome"

@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Properties"
   ],
-  "SelectedNode": "\\dvcsharp-core-api.sln",
+  "SelectedNode": "\\Startup.cs",
   "PreviewInSolutionExplorer": true
 }
