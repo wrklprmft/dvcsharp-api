@@ -5,7 +5,7 @@ services:
     command: ["bash", "-c", "./start.sh"]
     volumes:
       - .:/app
-      - ~/cxiast-cSharp-agent:/cx-agent
+      - /home/jurgen/cxiast-cSharp-agent:/cx-agent
     ports:
       - "5000:5000"
     environment:
