@@ -35,21 +35,32 @@ namespace dvcsharp_core_api
          if(!ModelState.IsValid) {
             return BadRequest(ModelState);
          }
-
-         var existingUser = _context.Users.SingleOrDefault(m => m.ID == id);
-         if(existingUser == null) {
-            return NotFound();
+         var email = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name").Value;
+         var currentUser = _context.Users.Where(b => b.email == email).FirstOrDefault();
+         if (currentUser == null) {
+                return NotFound();
          }
+         if (currentUser.ID != id || !User.IsInRole("Administrator"))
+            {
+                return Forbid();
+            } else
+            {
+                var existingUser = _context.Users.SingleOrDefault(m => m.ID == id);
+                if (existingUser == null)
+                {
+                    return NotFound();
+                }
 
-         existingUser.name = user.name;
-         existingUser.email = user.email;
-         existingUser.role = user.role;
-         existingUser.updatePassword(user.password);
+                existingUser.name = user.name;
+                existingUser.email = user.email;
+                existingUser.role = user.role;
+                existingUser.updatePassword(user.password);
 
-         _context.Users.Update(existingUser);
-         _context.SaveChanges();
+                _context.Users.Update(existingUser);
+                _context.SaveChanges();
 
-         return Ok(existingUser);
+                return Ok(existingUser);
+            }
       }
 
       [Authorize]
