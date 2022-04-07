@@ -67,14 +67,21 @@ namespace dvcsharp_core_api
       [HttpDelete("{id}")]
       public IActionResult Delete(int id)
       {
-         User user = _context.Users.SingleOrDefault(m => m.ID == id);
+         var email = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name").Value;
+         var user = _context.Users.Where(b => b.email == email).FirstOrDefault();
 
          if(user == null) {
             return NotFound();
          }
-
-         _context.Users.Remove(user);
-         _context.SaveChanges();
+         if (user.ID != id || !User.IsInRole("Administrator"))
+            {
+                return Forbid();
+            }
+         else
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+            }
 
          return Ok(user);
       }
