@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:2.1
 LABEL MAINTAINER "Appsecco"
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:5000
+ENV ASPNETCORE_URLS=http://0.0.0.0:6000
 
 COPY . /app
 
