@@ -11,93 +11,117 @@ using dvcsharp_core_api.Data;
 
 namespace dvcsharp_core_api
 {
-   [Route("api/[controller]")]
-   public class UsersController : Controller
-   {
-      private readonly GenericDataContext _context;
+    [Route("api/[controller]")]
+    public class UsersController : Controller
+    {
+        private readonly GenericDataContext _context;
 
-      public UsersController(GenericDataContext context)
-      {
-         _context = context;
-      }
+        public UsersController(GenericDataContext context)
+        {
+            _context = context;
+        }
 
-      [Authorize]
-      [HttpGet]
-      public IEnumerable<User> Get()
-      {
-         return _context.Users.ToList();
-      }
+        [Authorize]
+        [HttpGet]
+        public IEnumerable<User> Get()
+        {
+            return _context.Users.ToList();
+        }
 
-      [Authorize]
-      [HttpPut("{id}")]
-      public IActionResult Put(int id, [FromBody] Models.UserUpdateRequest user)
-      {
-         if(!ModelState.IsValid) {
-            return BadRequest(ModelState);
-         }
+        [Authorize]
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] Models.UserUpdateRequest user)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var email = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name").Value;
+            var currentUser = _context.Users.Where(b => b.email == email).FirstOrDefault();
+            if (currentUser == null)
+            {
+                return NotFound();
+            }
+            if (currentUser.ID != id || !User.IsInRole("Administrator"))
+            {
+                return Forbid();
+            }
+            else
+            {
+                var existingUser = _context.Users.SingleOrDefault(m => m.ID == id);
+                if (existingUser == null)
+                {
+                    return NotFound();
+                }
 
-         var existingUser = _context.Users.SingleOrDefault(m => m.ID == id);
-         if(existingUser == null) {
-            return NotFound();
-         }
+                existingUser.name = user.name;
+                existingUser.email = user.email;
+                existingUser.role = user.role;
+                existingUser.updatePassword(user.password);
 
-         existingUser.name = user.name;
-         existingUser.email = user.email;
-         existingUser.role = user.role;
-         existingUser.updatePassword(user.password);
+                _context.Users.Update(existingUser);
+                _context.SaveChanges();
 
-         _context.Users.Update(existingUser);
-         _context.SaveChanges();
+                return Ok(existingUser);
+            }
+        }
 
-         return Ok(existingUser);
-      }
+        [Authorize]
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var email = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name").Value;
+            var user = _context.Users.Where(b => b.email == email).FirstOrDefault();
 
-      [Authorize]
-      [HttpDelete("{id}")]
-      public IActionResult Delete(int id)
-      {
-         User user = _context.Users.SingleOrDefault(m => m.ID == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            if (user.ID != id || !User.IsInRole("Administrator"))
+            {
+                return Forbid();
+            }
+            else
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+            }
 
-         if(user == null) {
-            return NotFound();
-         }
+            return Ok(user);
+        }
 
-         _context.Users.Remove(user);
-         _context.SaveChanges();
+        [Authorize]
+        [HttpGet("import")]
+        public async Task<IActionResult> Import()
+        {
+            HttpClient client = new HttpClient();
+            var url = HttpContext.Request.Query["url"].ToString();
 
-         return Ok(user);
-      }
+            string responseBody = null;
+            string errorMsg = "Success";
 
-      [Authorize]
-      [HttpGet("import")]
-      public async Task<IActionResult> Import()
-      {
-         HttpClient client = new HttpClient();
-         var url = HttpContext.Request.Query["url"].ToString();
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                responseBody = await response.Content.ReadAsStringAsync();
 
-         string responseBody = null;
-         string errorMsg = "Success";
+                MockUserImport(responseBody);
+            }
+            catch (Exception e)
+            {
+                errorMsg = e.Message;
+            }
 
-         try {
-            HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            responseBody = await response.Content.ReadAsStringAsync();
+            return Ok(new JObject(
+               new JProperty("Error", errorMsg),
+               new JProperty("Content", responseBody)
+            ));
+        }
 
-            MockUserImport(responseBody);
-         }
-         catch(Exception e) {
-            errorMsg = e.Message;
-         }
-
-         return Ok(new JObject(
-            new JProperty("Error", errorMsg),
-            new JProperty("Content", responseBody)
-         ));
-      }
-
-      private void MockUserImport(string data)
-      {
-         // Mock
-      }
-   }
+        private void MockUserImport(string data)
+        {
+            // Mock
+        }
+    }
 }
