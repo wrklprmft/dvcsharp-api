@@ -74,7 +74,8 @@ namespace dvcsharp_core_api
 
             app.UseCors("CorsPolicy");
             app.UseAuthentication();
-            app.UseRouting();  
+            app.UseRouting();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints => {  
                 endpoints.MapDefaultControllerRoute();  
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");  

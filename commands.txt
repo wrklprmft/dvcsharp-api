@@ -1,0 +1,4 @@
+dotnet-ef database update
+C:\dotnet_IAST\cxiast_dotnet-agent\CxIAST_CORE.bat -e -app=dotnet
+dotnet watch run
+dotnet C:\Users\jurgene.DM\source\repos\dvcsharp-api\bin\Debug\netcoreapp3.1\dvcsharp-core-api.dll
