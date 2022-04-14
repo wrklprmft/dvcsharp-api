@@ -10,6 +10,6 @@ WORKDIR /app
 RUN dotnet restore \
     && dotnet ef database update
 
-EXPOSE 5000
+EXPOSE 6000
 
 CMD ["dotnet", "watch", "run"]
